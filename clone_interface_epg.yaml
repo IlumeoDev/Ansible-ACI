@@ -1,0 +1,153 @@
+---
+  - name: 'clone epg configuration to a new created EPG'
+    hosts: all
+    gather_facts: no
+    connection: local
+
+    tasks:
+
+    - name: LOGIN TO FABRIC
+      uri:
+        url: "https://{{ inventory_hostname }}/api/aaaLogin.json"
+        method: POST
+        body_format: json
+        body:
+          {
+            "aaaUser":{
+              "attributes":{
+                "name":"{{ user }}",
+                "pwd":"{{ pass }}"
+              }
+            }
+          }
+        force_basic_auth: yes
+        validate_certs: no
+      register: data_login
+
+    - name: "debug get all configs of the EPG"
+      uri:
+        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ cloned_epg }}.json?query-target=subtree'
+#        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ epg }}.json?query-target=subtree&target-subtree-class=fvRsPathAtt'
+        method: GET
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        return_content: yes
+      register: epg_config
+
+    - name : "test savegarde de la config des fvAEPG"
+      copy: content="{{ epg_config }}" dest=/var/lib/awx/projects/aci/fvAEPg_v2.json
+
+
+    - name: "get the bridge domain of the PEG you want to clone"
+      uri:
+#        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ epg }}.json?query-target=subtree'
+        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ cloned_epg }}.json?query-target=subtree&target-subtree-class=fvRsBd'
+        method: GET
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        return_content: yes
+      register: epg_config_Bd
+
+    - name: "create the the epg"
+      uri:
+        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ new_epg }}.json'
+        method: POST
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        body_format: json
+        body:
+          {
+            "fvAEPg": {
+              "attributes":{
+                "dn": "uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ new_epg }}",
+                "name": "{{ new_epg }}",
+                "rn": "epg-{{ new_epg }}",
+                "status": "created,modified"
+              },
+              "children": [{
+                "fvRsBd": {
+                  "attributes": {
+                   "tnFvBDName": "{{ item.fvRsBd.attributes.tnFvBDName }}",
+                   "status": "created,modified"
+                  },
+                  "children":[]
+                }
+              }]
+            }
+          }
+        return_content: yes
+      with_items: "{{ epg_config_Bd.json.imdata }}"
+
+
+    - name: "get configs of the EPG domain with class query"
+      uri:
+#        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ epg }}.json?query-target=subtree'
+        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ cloned_epg }}.json?query-target=subtree&target-subtree-class=fvRsDomAtt'
+        method: GET
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        return_content: yes
+      register: epg_config_dom
+
+
+    - name: "bind the new EPG to the domain of the cloned EPG"
+      uri:
+        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ new_epg }}.json'
+        method: POST
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        body_format: json
+        body:
+          {
+            "fvRsDomAtt": {
+              "attributes":{
+                "resImedcy": "immediate",
+                "tDn": "{{ item.fvRsDomAtt.attributes.tDn }}",
+                "status": "created,modified"
+              },
+              "children": []
+            }
+          }
+        return_content: yes
+      with_items: "{{ epg_config_dom.json.imdata }}"
+
+
+
+    - name: "get configs of the EPG interface with class query"
+      uri:
+#        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ epg }}.json?query-target=subtree'
+        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ cloned_epg }}.json?query-target=subtree&target-subtree-class=fvRsPathAtt'
+        method: GET
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        return_content: yes
+      register: epg_config_int
+
+
+    - name: "get configs of the EPG"
+      uri:
+        url: 'https://{{ inventory_hostname }}/api/mo/uni/tn-{{ tenant }}/ap-{{ ap }}/epg-{{ new_epg }}.json'
+        method: POST
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        body_format: json
+        body:
+          {
+            "fvRsPathAtt": {
+              "attributes":{
+                "encap": "vlan-{{ vlan }}",
+                "tDn": "{{ item.fvRsPathAtt.attributes.tDn }}",
+                "mode": "{{ item.fvRsPathAtt.attributes.mode }}",
+                "instrImedcy": "{{ item.fvRsPathAtt.attributes.instrImedcy }}",
+                "status": "created,modified"
+              },
+              "children": []
+            }
+          }
+        return_content: yes
+      with_items: "{{ epg_config_int.json.imdata }}"
+
+
+    - name : "test savegarde de la config des fvAEPG"
+      copy: content="{{ epg_config }}" dest=/var/lib/awx/projects/aci/fvAEPg_v2.json
+
