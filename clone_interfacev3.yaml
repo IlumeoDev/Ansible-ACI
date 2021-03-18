@@ -30,7 +30,8 @@
         username: admin
         password: ciscopsdt
         interface_profile: leafintprfname1
-        description:  add with ansible
+        description: add with ansible
+        interface_selector: {{ interface }}
         state: present
       delegate_to: localhost
 
