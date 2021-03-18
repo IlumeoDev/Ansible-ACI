@@ -7,7 +7,7 @@
     tasks:
     
     - name: Create target directory
-      file: path=/home/administrator/aci state=directory mode=0777
+      file: path=/var/lib/awx/projects/aci state=directory mode=0777
       register: bleh
 
     - name: LOGIN TO FABRIC
