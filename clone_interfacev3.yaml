@@ -1,0 +1,91 @@
+---
+  - name: 'clone epg configuration from one interface to a new interfaces ( servers ) '
+    hosts: all
+    gather_facts: no
+    connection: local
+
+    tasks:
+
+    - name: LOGIN TO FABRIC
+      uri:
+        url: "https://{{ inventory_hostname }}/api/aaaLogin.json"
+        method: POST
+        body_format: json
+        body:
+          {
+            "aaaUser":{
+              "attributes":{
+                "name":"{{ user }}",
+                "pwd":"{{ pass }}"
+              }
+            }
+          }
+        force_basic_auth: yes
+        validate_certs: no
+      register: data_login
+
+    - name: "get all configs of the EPG"
+      uri:
+        url: 'https://{{ inventory_hostname }}/api/class/fvAp.json?query-target=subtree&target-subtree-class=fvAEPg&rsp-subtree=children&rsp-subtree-class=fvRsPathAtt'
+        method: GET
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        return_content: yes
+      register: stbinding_config
+
+    - name : "save results on results.json"
+      copy: content="{{ stbinding_config }}" dest=/var/lib/awx/projects/aci/results.json
+      vars:
+        query: ""
+
+    - name: extract all the epg from the json 
+      set_fact:
+        varbuffer: "{{ stbinding_config.json | json_query(buffquery) }}"
+      vars:
+        buffquery: "imdata[*].fvAEPg"
+
+    - name: "extraction des infos necessaire le port vlan mode etc ..."
+      set_fact:
+        epg_data: "{{ epg_data|default([]) + varbuffer | json_query(myquery) }}"
+      vars:
+        myquery: "[*].{Epg : attributes.name ,Dn: attributes.dn,Port: children[? fvRsPathAtt.attributes.tDn=='topology/pod-{{ item.value.pod_id }}/paths-{{ item.value.node_id }}/pathep-[{{ item.value.int_clone }}]'].fvRsPathAtt.attributes.tDn ,Vlan: children[? fvRsPathAtt.attributes.tDn=='topology/pod-{{ item.value.pod_id }}/paths-{{ item.value.node_id }}/pathep-[{{ item.value.int_clone }}]'].fvRsPathAtt.attributes.encap,Immedicy: children[? fvRsPathAtt.attributes.tDn=='topology/pod-{{ item.value.pod_id }}/paths-{{ item.value.node_id }}/pathep-[{{ item.value.int_clone }}]'].fvRsPathAtt.attributes.instrImedcy, Mode: children[? fvRsPathAtt.attributes.tDn=='topology/pod-{{ item.value.pod_id }}/paths-{{ item.value.node_id }}/pathep-[{{ item.value.int_clone }}]'].fvRsPathAtt.attributes.mode }"
+      loop: "{{ interfaces | dict2items }}"
+
+    - name : "debug verification de l'extraction"
+      copy: content="{{ epg_data }}" dest=/var/lib/awx/projects/aci/epg_table.yaml
+
+    - name: clean epg data
+      set_fact:
+        clean_epg_data: "{{clean_epg_data|default([]) + [{'dn': item.Dn,'port': item.Port|join('\n'), 'vlan': item.Vlan|join('\n') ,'mode': item.Mode|join('\n') , 'imedcy': item.Immedicy|join('\n')  }]}}"
+      when: item.Vlan != None
+      loop: "{{ epg_data  }}"
+
+    - name : "debug clean_data_epg"
+      copy: content="{{ clean_epg_data }}" dest=/var/lib/awx/projects/aci/clean_results.json
+      vars:
+        query: ""
+
+    - name: "binding des epg sur le port"
+      uri:
+        url: 'https://{{ inventory_hostname }}/api/mo/{{ item[0].dn }}.json'
+        method: POST
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        body_format: json
+        body:
+          {
+            "fvRsPathAtt": {
+              "attributes":{
+                "encap": "{{ item[0].vlan }}",
+                "tDn": "topology/pod-{{ item[1].value.pod_id }}/paths-{{ item[1].value.node_id }}/pathep-[{{ item[1].value.int }}]",
+#                "tDn": "topology/pod-1/paths-101/pathep-[eth1/4]",
+                "mode": "{{ item[0].mode }}",
+                "instrImedcy": "{{ item[0].imedcy }}",
+                "status": "created,modified"
+              },
+              "children": []
+            }
+          }
+        return_content: yes
+      when: item[0].vlan != "" and item[0].port == item[1].value.dn_clone
+      loop: "{{ clean_epg_data | product(interfaces|dict2items) | list }}"
