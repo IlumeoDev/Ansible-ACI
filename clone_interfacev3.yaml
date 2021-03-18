@@ -25,9 +25,9 @@
       register: data_login
       
     - name: Add a new leaf_interface_profile
-      cisco.aci.aci_interface_policy_leaf_profile:
-        headers:
+      headers:
           Cookie: "{{ data_login.set_cookie }}"
+      cisco.aci.aci_interface_policy_leaf_profile:
         interface_profile: leafintprfname1
         description:  add with ansible
         state: present
