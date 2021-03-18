@@ -1,13 +1,4 @@
 ---
-  - name: Add a new leaf_interface_profile
-    cisco.aci.aci_interface_policy_leaf_profile:
-      host: {{ inventory_hostname }}
-      username: admin
-      password: ciscopsdt
-      interface_profile: leafintprfname1
-      description:  add with ansible
-      state: present
-  
   - name: 'clone epg configuration from one interface to a new interfaces ( servers ) '
     hosts: all
     gather_facts: no
@@ -32,6 +23,14 @@
         force_basic_auth: yes
         validate_certs: no
       register: data_login
+      
+    - name: Add a new leaf_interface_profile
+      cisco.aci.aci_interface_policy_leaf_profile:
+        headers:
+          Cookie: "{{ data_login.set_cookie }}"
+        interface_profile: leafintprfname1
+        description:  add with ansible
+        state: present
 
     - name: "get all configs of the EPG"
       uri:
