@@ -15,8 +15,8 @@
           {
             "aaaUser":{
               "attributes":{
-                "name":"admin",
-                "pwd":"ciscopsdt"
+                "name":"{{ user }}",
+                "pwd":"{{ pass }}"
               }
             }
           }
