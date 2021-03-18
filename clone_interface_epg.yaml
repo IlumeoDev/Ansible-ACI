@@ -5,10 +5,6 @@
     connection: local
 
     tasks:
-    
-    - name: Create target directory
-      file: path=/home/aci state=directory mode=0777
-      register: bleh
 
     - name: LOGIN TO FABRIC
       uri:
@@ -39,7 +35,7 @@
       register: epg_config
 
     - name : "test savegarde de la config des fvAEPG"
-      copy: content="{{ epg_config }}" dest={{ bleh }}/fvAEPg_v2.json
+      copy: content="{{ epg_config }}" dest=/var/lib/awx/projects/aci/fvAEPg_v2.json
 
 
     - name: "get the bridge domain of the PEG you want to clone"
