@@ -31,19 +31,23 @@
         password: ciscopsdt
         interface_profile: "{{ interface_profile }}"
         description: add with ansible
-        interface_selector: "{{ interface }}"
         state: present
       delegate_to: localhost
       
-    - name: Associating an interface selector profile to a switch policy leaf profile
-      cisco.aci.aci_interface_selector_to_switch_policy_leaf_profile:
+    - name: Associate an Interface Access Port Selector to an Interface Policy Leaf Profile with a Policy Group
+      cisco.aci.aci_access_port_to_interface_policy_leaf_profile:
         host: sandboxapicdc.cisco.com
         username: admin
         password: ciscopsdt
-        leaf_profile: Bank_L101
-        interface_selector: "{{ interface_profile }}"
+        interface_profile: "{{ interface_profile }}"
+        access_port_selector: accessportselectorname
+        port_blk: leafportblkname
+        from_port: "{{ interface }}"
+        to_port: "{{ interface }}"
+        policy_group: "{{ policy_group }}"
         state: present
       delegate_to: localhost
+
 
     - name: "get all configs of the EPG"
       uri:
