@@ -1,15 +1,17 @@
 ---
+- name: Add a new leaf_interface_profile
+  cisco.aci.aci_interface_policy_leaf_profile:
+    host: {{ inventory_hostname }}
+    username: admin
+    password: ciscopsdt
+    interface_profile: leafintprfname1
+    description:  add with ansible
+    state: present
+  
   - name: 'clone epg configuration from one interface to a new interfaces ( servers ) '
     hosts: all
     gather_facts: no
     connection: local
-    
-   - name: "Query all leaf_interface_profiles"
-     cisco.aci.aci_interface_policy_leaf_profile:
-       headers:
-         Cookie: "{{ data_login.set_cookie }}"
-     state: query
-     delegate_to: localhost
 
     tasks:
 
