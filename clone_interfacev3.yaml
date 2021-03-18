@@ -29,9 +29,19 @@
         host: sandboxapicdc.cisco.com
         username: admin
         password: ciscopsdt
-        interface_profile: leafintprfname1
+        interface_profile: "{{ interface_profile }}"
         description: add with ansible
         interface_selector: "{{ interface }}"
+        state: present
+      delegate_to: localhost
+      
+    - name: Associating an interface selector profile to a switch policy leaf profile
+      cisco.aci.aci_interface_selector_to_switch_policy_leaf_profile:
+        host: sandboxapicdc.cisco.com
+        username: admin
+        password: ciscopsdt
+        leaf_profile: Bank_L101
+        interface_selector: "{{ interface_profile }}"
         state: present
       delegate_to: localhost
 
