@@ -26,9 +26,13 @@
       
     - name: "Add a new leaf_interface_profile"
       cisco.aci.aci_interface_policy_leaf_profile:
+        host: https://sandboxapicdc.cisco.com
+        username: admin
+        password: ciscopsdt
         interface_profile: leafintprfname1
         description:  add with ansible
         state: present
+      delegate_to: localhost
 
     - name: "get all configs of the EPG"
       uri:
