@@ -42,8 +42,8 @@
         interface_profile: "{{ interface_profile }}"
         access_port_selector: accessportselectorname
         port_blk: leafportblkname
-        from_port: "{{ interface }}"
-        to_port: "{{ interface }}"
+        from_port: "{{ interface1 }}"
+        to_port: "{{ interface2 }}"
         policy_group: "{{ policy_group }}"
         state: present
       delegate_to: localhost
