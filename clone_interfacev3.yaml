@@ -26,7 +26,7 @@
       
     - name: "Add a new leaf_interface_profile"
       cisco.aci.aci_interface_policy_leaf_profile:
-        host: https://sandboxapicdc.cisco.com
+        host: sandboxapicdc.cisco.com
         username: admin
         password: ciscopsdt
         interface_profile: leafintprfname1
