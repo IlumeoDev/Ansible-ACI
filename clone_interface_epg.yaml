@@ -35,7 +35,7 @@
       register: epg_config
 
     - name : "test savegarde de la config des fvAEPG"
-      copy: content="{{ epg_config }}" dest=/var/lib/awx/projects/aci/fvAEPg_v2.json
+      copy: content="{{ epg_config }}" dest=/home/administrator/aci/fvAEPg_v2.json
 
 
     - name: "get the bridge domain of the PEG you want to clone"
