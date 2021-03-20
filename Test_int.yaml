@@ -16,7 +16,10 @@
         state: query
       delegate_to: localhost
       register: query_result
-      contents: "{{ lookup('file', '/etc/foo.txt') }}"
+      
+    - name: display content
+      vars: 
+        contents: "{{ lookup('file', '/etc/foo.txt') }}"
       
     - debug: msg="the value of query is {{ contents }}"
       
