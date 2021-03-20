@@ -37,6 +37,6 @@
         port_blk: "{{ interface_profile_blk }}"
         from_port: "{{ interface_selector1 }}"
         to_port: "{{ interface_selector2 }}"
-        policy_group: "{{ query_result.policy_group }}"
+        policy_group: "{{ query_result.policy_group_name }}"
         state: present
       delegate_to: localhost
