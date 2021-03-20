@@ -11,7 +11,31 @@
         host: sandboxapicdc.cisco.com
         username: admin
         password: ciscopsdt
-        interface_profile: "{{ interface_profile }}"
+        interface_profile: "{{ interface_profile_src }}"
         state: query
       delegate_to: localhost
       register: query_result
+      
+    - name: Add a new leaf_interface_profile
+      cisco.aci.aci_interface_policy_leaf_profile:
+        host: sandboxapicdc.cisco.com
+        username: admin
+        password: ciscopsdt
+        interface_profile: "{{ interface_profile_dest }}"
+        description:  leafintprfname description
+        state: present
+      delegate_to: localhost
+      
+    - name: Associate an Interface Access Port Selector to an Interface Policy Leaf Profile with a Policy Group
+      cisco.aci.aci_access_port_to_interface_policy_leaf_profile:
+        host: sandboxapicdc.cisco.com
+        username: admin
+        password: ciscopsdt
+        interface_profile: "{{ interface_profile_dest }}"
+        access_port_selector: "{{ interface_selector_name }}"
+        port_blk: "{{ interface_profile_blk }}"
+        from_port: "{{ interface_selector1 }}"
+        to_port: "{{ interface_selector2 }}"
+        policy_group: "{{ interface_policygroup }}"
+        state: present
+      delegate_to: localhost
