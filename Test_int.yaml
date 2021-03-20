@@ -19,7 +19,7 @@
       
     - name: display content query 
       ansible.builtin.debug:
-        msg: "{{ item.key }} - {{ item.value }}"
+        msg: "{{ item.key }}123456 - {{ item.value }}123456"
       loop: "{{ query_result | dict2items }}"
       
     - name: Add a new leaf_interface_profile
