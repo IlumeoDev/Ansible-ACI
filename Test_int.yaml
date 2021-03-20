@@ -5,13 +5,14 @@
     connection: local
     
     tasks:
-
-    - name: Query interfaces
-      cisco.aci.aci_interface_policy_leaf_profile:
+    
+    - name: Query Specific access_port_selector under given leaf_interface_profile
+      cisco.aci.aci_access_port_to_interface_policy_leaf_profile:
         host: sandboxapicdc.cisco.com
         username: admin
         password: ciscopsdt
         interface_profile: "{{ interface_profile_src }}"
+        access_port_selector: "{{ interface_selector_name_src }}"
         state: query
       delegate_to: localhost
       register: query_result
@@ -36,6 +37,6 @@
         port_blk: "{{ interface_profile_blk }}"
         from_port: "{{ interface_selector1 }}"
         to_port: "{{ interface_selector2 }}"
-        policy_group: "{{ interface_policygroup }}"
+        policy_group: query_result.policy_group
         state: present
       delegate_to: localhost
