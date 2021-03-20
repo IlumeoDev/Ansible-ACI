@@ -1,1 +1,13 @@
+---
 
+tasks:
+
+- name: Query interfaces
+  cisco.aci.aci_interface_policy_leaf_profile:
+    host: sandboxapicdc.cisco.com
+    username: admin
+    password: ciscopsdt
+    interface_profile: "{{ interface_profile }}"
+    state: query
+  delegate_to: localhost
+  register: query_result
