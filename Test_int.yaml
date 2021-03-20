@@ -17,11 +17,10 @@
       delegate_to: localhost
       register: query_result
       
-    - name: display content
-      vars: 
-        contents: "{{ lookup('file', '/etc/foo.txt') }}"
-      
-    - debug: msg="the value of query is {{ contents }}"
+    - name: display content query 
+      ansible.builtin.debug:
+        msg: "{{ item.key }} - {{ item.value }}"
+      loop: "{{ query_result | dict2items }}"
       
     - name: Add a new leaf_interface_profile
       cisco.aci.aci_interface_policy_leaf_profile:
