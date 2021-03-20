@@ -16,6 +16,9 @@
         state: query
       delegate_to: localhost
       register: query_result
+      contents: "{{ lookup('file', '/etc/foo.txt') }}"
+      
+    - debug: msg="the value of query is {{ contents }}"
       
     - name: Add a new leaf_interface_profile
       cisco.aci.aci_interface_policy_leaf_profile:
@@ -33,7 +36,7 @@
         username: admin
         password: ciscopsdt
         interface_profile: "{{ interface_profile_dest }}"
-        access_port_selector: "{{ query_result.access_port_selector }}"
+        access_port_selector: "{{ interface_selector_name }}"
         port_blk: "{{ interface_profile_blk }}"
         from_port: "{{ interface_selector1 }}"
         to_port: "{{ interface_selector2 }}"
