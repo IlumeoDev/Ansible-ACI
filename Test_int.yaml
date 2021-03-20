@@ -1,5 +1,9 @@
 ---
-
+- name: 'clone epg configuration to a new created EPG'
+  hosts: all
+  gather_facts: no
+  connection: local
+    
 tasks:
 
 - name: Query interfaces
