@@ -26,8 +26,8 @@
       debug:
         msg: "Look for {{ item.0 }} and then {{ item.1 }}"
       with_subelements:
-      - "{{ query_result }}
-      - value
+        - "{{ query_result }}
+        - value
       
     - name: Add a new leaf_interface_profile
       cisco.aci.aci_interface_policy_leaf_profile:
