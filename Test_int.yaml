@@ -42,6 +42,6 @@
         port_blk: "{{ interface_profile_blk }}"
         from_port: "{{ interface_selector1 }}"
         to_port: "{{ interface_selector2 }}"
-        policy_group: "{{ query_result.tDn }}"
+        policy_group: "{{ query_result.value.infraHportS.children.infraRsAccBaseGrp.attributes.tdn }}"
         state: present
       delegate_to: localhost
