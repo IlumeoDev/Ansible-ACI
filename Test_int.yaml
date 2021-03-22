@@ -28,6 +28,7 @@
       with_subelements:
         - "{{ query_result }}"
         - value
+      loop: "{{ query_result | dict2items }}"
       
     - name: Add a new leaf_interface_profile
       cisco.aci.aci_interface_policy_leaf_profile:
