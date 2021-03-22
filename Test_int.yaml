@@ -26,7 +26,7 @@
       debug:
         msg: "Look for {{ item.0 }} and then {{ item.1 }}"
       with_subelements:
-        - "{{ query_result }}
+        - "{{ query_result }}"
         - value
       
     - name: Add a new leaf_interface_profile
