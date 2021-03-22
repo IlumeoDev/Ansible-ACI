@@ -22,6 +22,13 @@
         msg: "{{ item.key }}123456 - {{ item.value }}123456"
       loop: "{{ query_result | dict2items }}"
       
+    - name: test browsing
+      debug:
+        msg: "Look for {{ item.0 }} and then {{ item.1 }}"
+      with_subelements:
+      - "{{ query_result }}
+      - value
+      
     - name: Add a new leaf_interface_profile
       cisco.aci.aci_interface_policy_leaf_profile:
         host: sandboxapicdc.cisco.com
