@@ -43,7 +43,7 @@
           port_blk: "{{ interface_profile_blk }}"
           from_port: "{{ interface_selector1 }}"
           to_port: "{{ interface_selector2 }}"
-          policy_group: "{{ item.value.infraHportS.children.infraRsAccBaseGrp.attributes.tdn }}"
+          policy_group: "{{ item.tdn }}"
           state: present
       loop: "{{ query_result | dict2items }}"
       delegate_to: localhost
