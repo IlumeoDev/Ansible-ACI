@@ -8,15 +8,15 @@
 
     - name: LOGIN TO FABRIC
       uri:
-        url: "https://{{ inventory_hostname }}/api/aaaLogin.json"
+        url: "https://sandboxapicdc.cisco.com/api/aaaLogin.json"
         method: POST
         body_format: json
         body:
           {
             "aaaUser":{
               "attributes":{
-                "name":"{{ user }}",
-                "pwd":"{{ pass }}"
+                "name":"admin",
+                "pwd":"!v3G@!4@Y"
               }
             }
           }
@@ -51,7 +51,7 @@
 
     - name: "get all configs of the EPG"
       uri:
-        url: 'https://{{ inventory_hostname }}/api/class/fvAp.json?query-target=subtree&target-subtree-class=fvAEPg&rsp-subtree=children&rsp-subtree-class=fvRsPathAtt'
+        url: 'https://sandboxapicdc.cisco.com/api/class/fvAp.json?query-target=subtree&target-subtree-class=fvAEPg&rsp-subtree=children&rsp-subtree-class=fvRsPathAtt'
         method: GET
         headers:
           Cookie: "{{ data_login.set_cookie }}"
@@ -92,7 +92,7 @@
 
     - name: "binding des epg sur le port"
       uri:
-        url: 'https://{{ inventory_hostname }}/api/mo/{{ item[0].dn }}.json'
+        url: 'https://sandboxapicdc.cisco.com/api/mo/{{ item[0].dn }}.json'
         method: POST
         headers:
           Cookie: "{{ data_login.set_cookie }}"
